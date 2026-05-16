@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item -ItemType Directory -Path \"C:\\\\Users\\\\westo\\\\OneDrive\\\\Desktop\\\\Berkeley\\\\BAML_testing\\\\baml-bsv-eval\" -Force)",
+      "Bash(curl -s http://localhost:8000/emails)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('emails endpoint OK, keys:', list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(.venv/Scripts/python bench.py)",
+      "Bash(echo \"exit_code=$?\")"
+    ]
+  }
+}

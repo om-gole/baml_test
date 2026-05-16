@@ -1,0 +1,759 @@
+{
+  "meta": {
+    "n_runs": 10,
+    "n_overhead": 3,
+    "raw_model": "claude-haiku-4-5-20251001",
+    "baml_model": "claude-sonnet-4-20250514",
+    "timestamp": "2026-05-16T16:50:23.573970+00:00"
+  },
+  "prompt_tokens": {
+    "email_1": {
+      "raw": {
+        "total": 1659,
+        "system": 90,
+        "user_msg": 600,
+        "tool_schema": 969
+      },
+      "baml": {
+        "total": 912,
+        "rules_and_email": 789,
+        "ctx_output_format": 123
+      }
+    },
+    "email_2": {
+      "raw": {
+        "total": 1599,
+        "system": 90,
+        "user_msg": 540,
+        "tool_schema": 969
+      },
+      "baml": {
+        "total": 852,
+        "rules_and_email": 729,
+        "ctx_output_format": 123
+      }
+    },
+    "email_3": {
+      "raw": {
+        "total": 1653,
+        "system": 90,
+        "user_msg": 594,
+        "tool_schema": 969
+      },
+      "baml": {
+        "total": 906,
+        "rules_and_email": 783,
+        "ctx_output_format": 123
+      }
+    },
+    "email_bad": {
+      "raw": {
+        "total": 1084,
+        "system": 90,
+        "user_msg": 25,
+        "tool_schema": 969
+      },
+      "baml": {
+        "total": 337,
+        "rules_and_email": 214,
+        "ctx_output_format": 123
+      }
+    }
+  },
+  "runs": {
+    "email_1": {
+      "raw": [
+        {
+          "success": true,
+          "total_ms": 3230.5,
+          "llm_ms": 3230.4,
+          "parse_ms": 0.06,
+          "tokens_in": 1759,
+          "tokens_out": 423
+        },
+        {
+          "success": true,
+          "total_ms": 2931.6,
+          "llm_ms": 2931.6,
+          "parse_ms": 0.04,
+          "tokens_in": 1759,
+          "tokens_out": 439
+        },
+        {
+          "success": true,
+          "total_ms": 3293.5,
+          "llm_ms": 3293.5,
+          "parse_ms": 0.03,
+          "tokens_in": 1759,
+          "tokens_out": 456
+        },
+        {
+          "success": true,
+          "total_ms": 2637.2,
+          "llm_ms": 2637.1,
+          "parse_ms": 0.02,
+          "tokens_in": 1759,
+          "tokens_out": 421
+        },
+        {
+          "success": true,
+          "total_ms": 2908.4,
+          "llm_ms": 2908.3,
+          "parse_ms": 0.05,
+          "tokens_in": 1759,
+          "tokens_out": 444
+        },
+        {
+          "success": true,
+          "total_ms": 2474.9,
+          "llm_ms": 2474.9,
+          "parse_ms": 0.04,
+          "tokens_in": 1759,
+          "tokens_out": 389
+        },
+        {
+          "success": true,
+          "total_ms": 2639.2,
+          "llm_ms": 2639.2,
+          "parse_ms": 0.03,
+          "tokens_in": 1759,
+          "tokens_out": 389
+        },
+        {
+          "success": true,
+          "total_ms": 2730.1,
+          "llm_ms": 2730.1,
+          "parse_ms": 0.06,
+          "tokens_in": 1759,
+          "tokens_out": 417
+        },
+        {
+          "success": true,
+          "total_ms": 2694.9,
+          "llm_ms": 2694.9,
+          "parse_ms": 0.03,
+          "tokens_in": 1759,
+          "tokens_out": 428
+        },
+        {
+          "success": true,
+          "total_ms": 2913.2,
+          "llm_ms": 2913.1,
+          "parse_ms": 0.05,
+          "tokens_in": 1759,
+          "tokens_out": 438
+        }
+      ],
+      "baml": [
+        {
+          "success": true,
+          "total_ms": 4021.8,
+          "tokens_in": 912,
+          "tokens_out": 231,
+          "count_overhead_ms": 172.9
+        },
+        {
+          "success": true,
+          "total_ms": 3930.3,
+          "tokens_in": 912,
+          "tokens_out": 231,
+          "count_overhead_ms": 204.4
+        },
+        {
+          "success": true,
+          "total_ms": 4111.2,
+          "tokens_in": 912,
+          "tokens_out": 239,
+          "count_overhead_ms": 280.6
+        },
+        {
+          "success": true,
+          "total_ms": 3680.4,
+          "tokens_in": 912,
+          "tokens_out": 232,
+          "count_overhead_ms": 199.5
+        },
+        {
+          "success": true,
+          "total_ms": 3848.6,
+          "tokens_in": 912,
+          "tokens_out": 238,
+          "count_overhead_ms": 198.9
+        },
+        {
+          "success": true,
+          "total_ms": 3896.7,
+          "tokens_in": 912,
+          "tokens_out": 231,
+          "count_overhead_ms": 196.1
+        },
+        {
+          "success": true,
+          "total_ms": 3509.2,
+          "tokens_in": 912,
+          "tokens_out": 232,
+          "count_overhead_ms": 224.7
+        },
+        {
+          "success": true,
+          "total_ms": 3656.2,
+          "tokens_in": 912,
+          "tokens_out": 246,
+          "count_overhead_ms": 180.2
+        },
+        {
+          "success": true,
+          "total_ms": 3678.7,
+          "tokens_in": 912,
+          "tokens_out": 233,
+          "count_overhead_ms": 255.3
+        },
+        {
+          "success": true,
+          "total_ms": 3896.5,
+          "tokens_in": 912,
+          "tokens_out": 231,
+          "count_overhead_ms": 207.4
+        }
+      ]
+    },
+    "email_2": {
+      "raw": [
+        {
+          "success": true,
+          "total_ms": 2983.4,
+          "llm_ms": 2983.4,
+          "parse_ms": 0.03,
+          "tokens_in": 1699,
+          "tokens_out": 348
+        },
+        {
+          "success": true,
+          "total_ms": 2973.5,
+          "llm_ms": 2973.4,
+          "parse_ms": 0.05,
+          "tokens_in": 1699,
+          "tokens_out": 369
+        },
+        {
+          "success": true,
+          "total_ms": 3125.2,
+          "llm_ms": 3125.2,
+          "parse_ms": 0.04,
+          "tokens_in": 1699,
+          "tokens_out": 369
+        },
+        {
+          "success": true,
+          "total_ms": 3197.2,
+          "llm_ms": 3197.1,
+          "parse_ms": 0.04,
+          "tokens_in": 1699,
+          "tokens_out": 362
+        },
+        {
+          "success": true,
+          "total_ms": 3335.0,
+          "llm_ms": 3335.0,
+          "parse_ms": 0.04,
+          "tokens_in": 1699,
+          "tokens_out": 344
+        },
+        {
+          "success": true,
+          "total_ms": 3140.3,
+          "llm_ms": 3140.3,
+          "parse_ms": 0.05,
+          "tokens_in": 1699,
+          "tokens_out": 384
+        },
+        {
+          "success": true,
+          "total_ms": 3223.0,
+          "llm_ms": 3222.9,
+          "parse_ms": 0.03,
+          "tokens_in": 1699,
+          "tokens_out": 377
+        },
+        {
+          "success": true,
+          "total_ms": 3417.2,
+          "llm_ms": 3417.2,
+          "parse_ms": 0.04,
+          "tokens_in": 1699,
+          "tokens_out": 391
+        },
+        {
+          "success": true,
+          "total_ms": 2714.9,
+          "llm_ms": 2714.8,
+          "parse_ms": 0.03,
+          "tokens_in": 1699,
+          "tokens_out": 337
+        },
+        {
+          "success": true,
+          "total_ms": 2966.7,
+          "llm_ms": 2966.7,
+          "parse_ms": 0.04,
+          "tokens_in": 1699,
+          "tokens_out": 373
+        }
+      ],
+      "baml": [
+        {
+          "success": true,
+          "total_ms": 4514.2,
+          "tokens_in": 852,
+          "tokens_out": 204,
+          "count_overhead_ms": 128.8
+        },
+        {
+          "success": true,
+          "total_ms": 4363.2,
+          "tokens_in": 852,
+          "tokens_out": 203,
+          "count_overhead_ms": 147.0
+        },
+        {
+          "success": true,
+          "total_ms": 4635.2,
+          "tokens_in": 852,
+          "tokens_out": 226,
+          "count_overhead_ms": 150.4
+        },
+        {
+          "success": true,
+          "total_ms": 4429.4,
+          "tokens_in": 852,
+          "tokens_out": 207,
+          "count_overhead_ms": 172.7
+        },
+        {
+          "success": true,
+          "total_ms": 4495.2,
+          "tokens_in": 852,
+          "tokens_out": 222,
+          "count_overhead_ms": 147.8
+        },
+        {
+          "success": true,
+          "total_ms": 4939.5,
+          "tokens_in": 852,
+          "tokens_out": 229,
+          "count_overhead_ms": 183.2
+        },
+        {
+          "success": true,
+          "total_ms": 4272.8,
+          "tokens_in": 852,
+          "tokens_out": 204,
+          "count_overhead_ms": 155.4
+        },
+        {
+          "success": true,
+          "total_ms": 4528.4,
+          "tokens_in": 852,
+          "tokens_out": 202,
+          "count_overhead_ms": 183.6
+        },
+        {
+          "success": true,
+          "total_ms": 4793.6,
+          "tokens_in": 852,
+          "tokens_out": 221,
+          "count_overhead_ms": 186.7
+        },
+        {
+          "success": true,
+          "total_ms": 4728.4,
+          "tokens_in": 852,
+          "tokens_out": 222,
+          "count_overhead_ms": 287.0
+        }
+      ]
+    },
+    "email_3": {
+      "raw": [
+        {
+          "success": true,
+          "total_ms": 3749.9,
+          "llm_ms": 3749.9,
+          "parse_ms": 0.03,
+          "tokens_in": 1753,
+          "tokens_out": 393
+        },
+        {
+          "success": true,
+          "total_ms": 3296.2,
+          "llm_ms": 3296.2,
+          "parse_ms": 0.05,
+          "tokens_in": 1753,
+          "tokens_out": 408
+        },
+        {
+          "success": true,
+          "total_ms": 3566.4,
+          "llm_ms": 3566.4,
+          "parse_ms": 0.03,
+          "tokens_in": 1753,
+          "tokens_out": 397
+        },
+        {
+          "success": true,
+          "total_ms": 3864.5,
+          "llm_ms": 3864.5,
+          "parse_ms": 0.03,
+          "tokens_in": 1753,
+          "tokens_out": 482
+        },
+        {
+          "success": true,
+          "total_ms": 3587.4,
+          "llm_ms": 3587.4,
+          "parse_ms": 0.04,
+          "tokens_in": 1753,
+          "tokens_out": 412
+        },
+        {
+          "success": true,
+          "total_ms": 3751.7,
+          "llm_ms": 3751.7,
+          "parse_ms": 0.03,
+          "tokens_in": 1753,
+          "tokens_out": 462
+        },
+        {
+          "success": true,
+          "total_ms": 2728.0,
+          "llm_ms": 2728.0,
+          "parse_ms": 0.03,
+          "tokens_in": 1753,
+          "tokens_out": 329
+        },
+        {
+          "success": true,
+          "total_ms": 2732.7,
+          "llm_ms": 2732.6,
+          "parse_ms": 0.08,
+          "tokens_in": 1753,
+          "tokens_out": 321
+        },
+        {
+          "success": true,
+          "total_ms": 2787.6,
+          "llm_ms": 2787.6,
+          "parse_ms": 0.03,
+          "tokens_in": 1753,
+          "tokens_out": 319
+        },
+        {
+          "success": true,
+          "total_ms": 2966.1,
+          "llm_ms": 2966.0,
+          "parse_ms": 0.05,
+          "tokens_in": 1753,
+          "tokens_out": 402
+        }
+      ],
+      "baml": [
+        {
+          "success": true,
+          "total_ms": 4371.1,
+          "tokens_in": 906,
+          "tokens_out": 210,
+          "count_overhead_ms": 154.3
+        },
+        {
+          "success": true,
+          "total_ms": 3788.8,
+          "tokens_in": 906,
+          "tokens_out": 199,
+          "count_overhead_ms": 148.2
+        },
+        {
+          "success": true,
+          "total_ms": 3951.1,
+          "tokens_in": 906,
+          "tokens_out": 199,
+          "count_overhead_ms": 145.4
+        },
+        {
+          "success": true,
+          "total_ms": 5273.7,
+          "tokens_in": 906,
+          "tokens_out": 220,
+          "count_overhead_ms": 187.7
+        },
+        {
+          "success": true,
+          "total_ms": 4599.9,
+          "tokens_in": 906,
+          "tokens_out": 211,
+          "count_overhead_ms": 244.4
+        },
+        {
+          "success": true,
+          "total_ms": 3929.9,
+          "tokens_in": 906,
+          "tokens_out": 206,
+          "count_overhead_ms": 116.1
+        },
+        {
+          "success": true,
+          "total_ms": 4038.6,
+          "tokens_in": 906,
+          "tokens_out": 205,
+          "count_overhead_ms": 144.1
+        },
+        {
+          "success": true,
+          "total_ms": 4106.9,
+          "tokens_in": 906,
+          "tokens_out": 210,
+          "count_overhead_ms": 165.3
+        },
+        {
+          "success": true,
+          "total_ms": 3962.5,
+          "tokens_in": 906,
+          "tokens_out": 216,
+          "count_overhead_ms": 131.5
+        },
+        {
+          "success": true,
+          "total_ms": 3871.8,
+          "tokens_in": 906,
+          "tokens_out": 206,
+          "count_overhead_ms": 201.2
+        }
+      ]
+    },
+    "email_bad": {
+      "raw": [
+        {
+          "success": true,
+          "total_ms": 953.2,
+          "llm_ms": 953.1,
+          "parse_ms": 0.07,
+          "tokens_in": 1184,
+          "tokens_out": 118
+        },
+        {
+          "success": true,
+          "total_ms": 919.9,
+          "llm_ms": 919.9,
+          "parse_ms": 0.07,
+          "tokens_in": 1184,
+          "tokens_out": 118
+        },
+        {
+          "success": true,
+          "total_ms": 893.9,
+          "llm_ms": 893.8,
+          "parse_ms": 0.04,
+          "tokens_in": 1184,
+          "tokens_out": 112
+        },
+        {
+          "success": true,
+          "total_ms": 1416.3,
+          "llm_ms": 1416.3,
+          "parse_ms": 0.03,
+          "tokens_in": 1184,
+          "tokens_out": 112
+        },
+        {
+          "success": true,
+          "total_ms": 944.6,
+          "llm_ms": 944.6,
+          "parse_ms": 0.05,
+          "tokens_in": 1184,
+          "tokens_out": 112
+        },
+        {
+          "success": true,
+          "total_ms": 903.4,
+          "llm_ms": 903.4,
+          "parse_ms": 0.02,
+          "tokens_in": 1184,
+          "tokens_out": 112
+        },
+        {
+          "success": true,
+          "total_ms": 1613.2,
+          "llm_ms": 1613.2,
+          "parse_ms": 0.02,
+          "tokens_in": 1184,
+          "tokens_out": 112
+        },
+        {
+          "success": true,
+          "total_ms": 5266.2,
+          "llm_ms": 5266.1,
+          "parse_ms": 0.05,
+          "tokens_in": 1184,
+          "tokens_out": 120
+        },
+        {
+          "success": true,
+          "total_ms": 919.5,
+          "llm_ms": 919.4,
+          "parse_ms": 0.03,
+          "tokens_in": 1184,
+          "tokens_out": 112
+        },
+        {
+          "success": true,
+          "total_ms": 914.1,
+          "llm_ms": 914.1,
+          "parse_ms": 0.03,
+          "tokens_in": 1184,
+          "tokens_out": 112
+        }
+      ],
+      "baml": [
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 1870.5
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 2012.0
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 2051.2
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 1943.3
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 1738.8
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 2027.2
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 1807.8
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 1903.4
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 1917.8
+        },
+        {
+          "success": false,
+          "error": "BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: ParsingError { scope: [], reason: \"Failed while parsing required fields: missing=0, unparsed=2\", causes: [ParsingError { scope: [], reason: \"Failed to parse field company_name: company_name: Expected string, got null\",",
+          "total_ms": 1911.1
+        }
+      ]
+    }
+  },
+  "overhead_analysis": {
+    "email_1": {
+      "direct_sonnet": [
+        {
+          "success": true,
+          "llm_ms": 3515.9,
+          "tokens_in": 912,
+          "tokens_out": 289
+        },
+        {
+          "success": true,
+          "llm_ms": 3534.9,
+          "tokens_in": 912,
+          "tokens_out": 296
+        },
+        {
+          "success": true,
+          "llm_ms": 3686.2,
+          "tokens_in": 912,
+          "tokens_out": 296
+        }
+      ]
+    },
+    "email_2": {
+      "direct_sonnet": [
+        {
+          "success": true,
+          "llm_ms": 4667.9,
+          "tokens_in": 852,
+          "tokens_out": 289
+        },
+        {
+          "success": true,
+          "llm_ms": 4203.8,
+          "tokens_in": 852,
+          "tokens_out": 266
+        },
+        {
+          "success": true,
+          "llm_ms": 4629.6,
+          "tokens_in": 852,
+          "tokens_out": 291
+        }
+      ]
+    },
+    "email_3": {
+      "direct_sonnet": [
+        {
+          "success": true,
+          "llm_ms": 4403.9,
+          "tokens_in": 906,
+          "tokens_out": 301
+        },
+        {
+          "success": true,
+          "llm_ms": 4256.4,
+          "tokens_in": 906,
+          "tokens_out": 278
+        },
+        {
+          "success": true,
+          "llm_ms": 4637.7,
+          "tokens_in": 906,
+          "tokens_out": 300
+        }
+      ]
+    },
+    "email_bad": {
+      "direct_sonnet": [
+        {
+          "success": true,
+          "llm_ms": 1855.2,
+          "tokens_in": 337,
+          "tokens_out": 105
+        },
+        {
+          "success": true,
+          "llm_ms": 1739.4,
+          "tokens_in": 337,
+          "tokens_out": 105
+        },
+        {
+          "success": true,
+          "llm_ms": 1947.1,
+          "tokens_in": 337,
+          "tokens_out": 105
+        }
+      ]
+    }
+  }
+}

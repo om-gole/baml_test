@@ -1,0 +1,24 @@
+From: Marcus Webb <marcus@fieldlogic.io>
+To: updates@bsvpartners.com
+Date: May 9, 2026
+Subject: FieldLogic update – things are moving!
+
+Hey team,
+
+Hope everyone had a good long weekend. Here's a quick rundown of where we're at.
+
+The big news is we finally closed that deal we've been chasing since January — a large regional logistics company out of Dallas. Won't name names yet but it's our biggest contract to date, something in the neighborhood of $280K a year. Super excited about it. Brings our total paying customer count up to just over 50, which felt like a milestone worth celebrating (we had cake).
+
+Revenue-wise, we crossed a number we'd been targeting for a while — let's just say we're comfortably into seven figures annualized now. Margins are solid, better than last quarter for sure, partly because we renegotiated our cloud infra contract with AWS. That alone is saving us something like $18-20K a month going forward.
+
+Burn is creeping up a bit as we hired more aggressively than planned — we added 6 people in Q1, including two senior engineers from Tesla's robotics division who are absolute killers. We also brought on a head of sales, James Kowalski, who spent the last five years running mid-market sales at Samsara. He's already restructuring the team and the early signs are good. Cash-wise, we're comfortable — not stressed, probably have a couple years of runway depending on how growth goes.
+
+Product front: we shipped the mobile offline-sync feature that the logistics customers have been asking for forever. Adoption is tracking well. We also started conversations with a few potential channel partners in the construction vertical, nothing signed but promising.
+
+A couple things on our mind: we're seeing some price pressure from a well-funded competitor that just came out of stealth, they're buying deals aggressively. Also our largest customer — they've been with us since the early days — is going through a leadership change and we're not sure yet what that means for the relationship. Keeping a close eye on it.
+
+Anything helpful you can do to make intros in construction or utilities would be awesome. Also happy to jam on Series A timing if you have thoughts.
+
+Talk soon,
+Marcus
+Co-founder & CEO, FieldLogic

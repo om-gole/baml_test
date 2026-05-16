@@ -1,0 +1,25 @@
+From: Dani Okafor <dani@helixtax.co>
+To: updates@bsvpartners.com
+Date: May 14, 2026
+Subject: Helix – Q1/early Q2 check-in
+
+Hi all,
+
+Overdue on sending this, sorry — it's been a hectic few months. Wanted to get something out before too much more time passed.
+
+Honestly the quarter was mixed. Some good things happened, some things we're still working through.
+
+On the positive side, we did grow. Revenue is up meaningfully from where we were at the end of last year, though I want to be careful not to quote exact numbers until we finish reconciling the books with our new accountant (the previous firm had some classification issues we're sorting out). Rough order of magnitude: we've grown something like 30-40% since our last update, which I think is pretty good given we weren't running a full sales motion until February.
+
+Customer count is harder to characterize right now because we made a decision to grandfather some early pilot users into paid at a steep discount, so depending on how you count it, we're somewhere between 20 and 35 customers. The ones paying full price are happy. We've had a couple of non-renewals — I wouldn't call it churn exactly, more like customers who were never the right fit in the first place.
+
+We made one key hire this quarter: a head of product, Leila Vasquez, who comes from TurboTax. Really strong. Still looking for a VP of Sales — the search has taken longer than expected, the last finalist didn't work out for reasons I can go into on a call.
+
+Runway is the thing we need to talk about. We have enough to operate for the next several months, but we're going to need to make some decisions in the not-too-distant future about either extending the runway or accelerating revenue enough to change the math. I'd like to get on a call this month to walk through the scenarios. We have some options we're considering — a small bridge from some angels, potentially a revenue contract with a large enterprise prospect that's in late-stage diligence — but nothing locked yet.
+
+Product is moving but I'll be honest, we slipped on a couple of Q1 milestones. The automated filing integration we promised some customers got pushed to Q3 because of some API changes on the IRS side that were out of our control. Some customers are frustrated, but most understand. We're managing it.
+
+Happy to jump on a call whenever works for you all.
+
+Dani
+CEO, Helix Tax

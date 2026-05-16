@@ -1,0 +1,50 @@
+From: Sarah Chen <sarah.chen@narrateai.com>
+To: updates@bsvpartners.com
+Date: May 12, 2026
+Subject: Narrate AI – Q1 2026 Portfolio Update
+
+Hi BSV team,
+
+Wanted to send our Q1 recap ahead of our board call next week. Strong quarter overall.
+
+**Financial Metrics**
+- ARR: $4.2M (up from $2.8M at end of Q4 2025, +50% QoQ)
+- MRR: $350K
+- Gross Margin: 74%
+- Burn Rate: $310K/month
+- Cash on Hand: $7.4M
+- Runway: ~24 months at current burn
+
+**Customers**
+- Total customers: 87 (up from 61 in Q4)
+- Enterprise customers (>$50K ACV): 14
+- Net Revenue Retention: 118%
+- Churn: 2 customers (both SMB, total ARR impact: $18K)
+
+**Pipeline**
+- Late-stage pipeline: $1.1M in ARR across 9 opportunities
+- Avg sales cycle: 47 days (down from 63 days in Q4)
+- Closed 3 enterprise deals in April already — Q2 off to a strong start
+
+**Key Hires**
+- Priya Nair joined as VP of Engineering (ex-Databricks, led infra team through Series C). Starting June 1.
+- Hired 2 senior ML engineers and 1 enterprise AE this quarter.
+- Open roles: Head of Customer Success, 2 more AEs
+
+**Product**
+- Launched real-time transcription API (v2.0) — now processing 4.2M audio minutes/day
+- Released SOC 2 Type II certification in March
+- Began beta for multi-language support (Spanish, French, German) with 6 design partners
+
+**Key Risks**
+- OpenAI's Whisper improvements narrowing our accuracy gap for standard use cases; we're leaning into specialized verticals (legal, medical)
+- One enterprise customer (12% of ARR) up for renewal in July — relationship is healthy but deal is material
+
+**Asks**
+- Intro to legal or medical CIOs in your network
+- Guidance on when to start Series B process (we're thinking Q4 2026)
+
+Thanks as always for the support. Looking forward to the board call.
+
+Sarah
+CEO, Narrate AI

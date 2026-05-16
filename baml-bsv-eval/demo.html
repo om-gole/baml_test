@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAML vs Raw SDK — Extraction Demo</title>
+<style>
+/* ── Reset ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base ──────────────────────────────────────── */
+:root {
+  --bg:        #f4f4f1;
+  --surface:   #ffffff;
+  --border:    #e2e2dc;
+  --text:      #1c1c1a;
+  --muted:     #6b6b66;
+  --blue:      #2563eb;
+  --blue-bg:   #eff6ff;
+  --blue-dim:  #bfdbfe;
+  --purple:    #7c3aed;
+  --purple-bg: #f5f3ff;
+  --purple-dim:#ddd6fe;
+  --code-bg:   #111118;
+  --code-text: #e8e8e2;
+  --schema-hl: #c4b5fd;  /* colour for auto-injected ctx.output_format section */
+  --radius:    8px;
+  --mono: 'JetBrains Mono', 'Fira Code', 'Consolas', ui-monospace, monospace;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ────────────────────────────────────── */
+header {
+  flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+header h1 { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+header p  { font-size: 12px; color: var(--muted); }
+
+/* ── Main grid ─────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr 1fr;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Panel shared ──────────────────────────────── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+.panel:last-child { border-right: none; }
+
+.panel-inner {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Left panel ─────────────────────────────────── */
+.col-header-bar {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.col-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 6px;
+}
+
+.email-pill-row { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.email-pill {
+  font-size: 11.5px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+  white-space: nowrap;
+}
+.email-pill:hover { border-color: #aaa; }
+.email-pill.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); font-weight: 500; }
+
+textarea {
+  flex: 1;
+  min-height: 200px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.65;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fafaf8;
+  color: var(--text);
+  resize: none;
+  outline: none;
+  transition: border-color .15s;
+}
+textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+.run-btn {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 9px;
+  background: var(--text);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.run-btn:hover:not(:disabled) { background: #374151; }
+.run-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* ── Result column headers ──────────────────────── */
+.result-header {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.result-header h2 { font-size: 13px; font-weight: 600; }
+.badge {
+  font-size: 10px; font-weight: 600;
+  padding: 2px 7px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.badge-raw  { background: var(--blue-dim);   color: #1d4ed8; }
+.badge-baml { background: var(--purple-dim); color: #5b21b6; }
+.model-tag { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+/* ── Meta chips ─────────────────────────────────── */
+.meta-row { display: flex; gap: 7px; flex-wrap: wrap; }
+
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: #f0f0ec;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.chip strong { color: var(--text); font-weight: 600; }
+.chip .est { font-size: 9.5px; color: var(--muted); }
+.chip.loading { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ── Section label ──────────────────────────────── */
+.section-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a0a09a;
+  margin-bottom: 5px;
+}
+
+/* ── Code blocks ────────────────────────────────── */
+.code-block {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border-radius: var(--radius);
+  padding: 13px 14px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  white-space: pre;
+  overflow: auto;
+  max-height: 340px;
+}
+.code-block .empty { color: #444; font-style: italic; }
+
+/* JSON syntax colours */
+.jk  { color: #93c5fd; }   /* key   — blue  */
+.js  { color: #86efac; }   /* string value — green */
+.jn  { color: #fcd34d; }   /* number — yellow */
+.jnu { color: #f87171; }   /* null — red */
+.jb  { color: #c084fc; }   /* bool — purple */
+
+/* Error block */
+.error-block {
+  background: #1f0808;
+  color: #fca5a5;
+  border: 1px solid #7f1d1d;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow: auto;
+}
+
+/* ── Prompt collapsible ─────────────────────────── */
+.prompt-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+.prompt-toggle:hover { color: var(--text); }
+.pt-arrow { transition: transform .18s; }
+.prompt-toggle.open .pt-arrow { transform: rotate(90deg); }
+
+.prompt-annotation {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--purple);
+  background: var(--purple-bg);
+  border: 1px solid var(--purple-dim);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+.prompt-block {
+  display: none;
+  background: #12101e;
+  color: #c9c3e8;
+  border-radius: var(--radius);
+  padding: 13px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 400px;
+}
+.prompt-block.open { display: block; }
+
+/* Highlight the auto-injected ctx.output_format section */
+.schema-inject { color: var(--schema-hl); }
+
+/* Section dividers inside raw prompt */
+.prompt-section-label {
+  color: #6b6b8a;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Spinner ────────────────────────────────────── */
+.spinner {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .65s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BAML vs Raw Anthropic SDK</h1>
+  <p>Portfolio company update extractor — side-by-side comparison</p>
+</header>
+
+<div class="layout">
+
+  <!-- ── LEFT: input ── -->
+  <div class="panel">
+    <div class="col-header-bar"><span class="col-title">Input</span></div>
+    <div class="panel-inner">
+
+      <div>
+        <div class="label">Test Emails</div>
+        <div class="email-pill-row" id="emailPills">
+          <span style="font-size:12px;color:var(--muted)">Connecting to server…</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;flex:1;gap:6px">
+        <div class="label">Email Text</div>
+        <textarea id="emailInput" placeholder="Paste a portfolio company update email, or click a preset above…"></textarea>
+      </div>
+
+      <button class="run-btn" id="runBtn" onclick="runBoth()">
+        Extract → Compare
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── MIDDLE: Raw SDK ── -->
+  <div class="panel">
+    <div class="result-header">
+      <h2>Raw SDK</h2>
+      <span class="badge badge-raw">anthropic-py</span>
+      <span class="model-tag">claude-haiku-4-5 · exact tokens</span>
+    </div>
+    <div class="panel-inner">
+
+      <div class="meta-row" id="rawMeta">
+        <div class="chip"><span>Latency</span><strong>—</strong></div>
+        <div class="chip"><span>Tokens in</span><strong>—</strong></div>
+        <div class="chip"><span>Tokens out</span><strong>—</strong></div>
+      </div>
+
+      <div>
+        <div class="section-label">Extracted JSON</div>
+        <div class="code-block" id="rawResult"><span class="empty">Run extraction to see output</span></div>
+      </div>
+
+      <div>
+        <div class="prompt-toggle" id="rawToggle" onclick="togglePrompt('raw')">
+          <span class="pt-arrow">▶</span>
+          <span>Prompt sent to Claude</span>
+          <span style="font-size:10px;color:var(--muted);margin-left:2px">(3 parts)</span>
+        </div>
+        <div class="prompt-block" id="rawPrompt"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RIGHT: BAML ── -->
+  <div class="panel">
+    <div class="result-header">
+      <h2>BAML</h2>
+      <span class="badge badge-baml">baml-py</span>
+      <span class="model-tag">claude-sonnet-4 · est. tokens</span>
+    </div>
+    <div class="panel-inner">
+
+      <div class="meta-row" id="bamlMeta">
+        <div class="chip"><span>Latency</span><strong>—</strong></div>
+        <div class="chip"><span>Tokens in</span><strong>—</strong></div>
+        <div class="chip"><span>Tokens out</span><strong>—</strong></div>
+      </div>
+
+      <div>
+        <div class="section-label">Extracted JSON</div>
+        <div class="code-block" id="bamlResult"><span class="empty">Run extraction to see output</span></div>
+      </div>
+
+      <div>
+        <div class="prompt-toggle" id="bamlToggle" onclick="togglePrompt('baml')">
+          <span class="pt-arrow">▶</span>
+          <span>Prompt sent to Claude</span>
+          <span class="prompt-annotation">ctx.output_format ↓</span>
+        </div>
+        <div class="prompt-block" id="bamlPrompt"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end .layout -->
+
+<script>
+const API = 'http://localhost:8000';
+
+// ── Utilities ─────────────────────────────────────────────────────────────
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Line-by-line JSON coloriser — handles keys, string/number/null values, array strings
+function colorJson(obj) {
+  return JSON.stringify(obj, null, 2)
+    .split('\n')
+    .map(line => {
+      let s = esc(line);
+      // key
+      s = s.replace(/^(\s*)(&quot;[^&]*&quot;)(\s*):/, (_,ws,k,sp) =>
+        `${ws}<span class="jk">${k}</span>${sp}:`);
+      // string value (after colon)
+      s = s.replace(/(:\s*)(&quot;.*&quot;)(,?)$/, (_,sep,v,c) =>
+        `${sep}<span class="js">${v}</span>${c}`);
+      // array string item (indented, no colon)
+      s = s.replace(/^(\s+)(&quot;.*&quot;)(,?)$/, (_,ws,v,c) =>
+        `${ws}<span class="js">${v}</span>${c}`);
+      // number
+      s = s.replace(/(:\s*)(-?\d+(?:\.\d+)?)(,?)$/, (_,sep,v,c) =>
+        `${sep}<span class="jn">${v}</span>${c}`);
+      // null
+      s = s.replace(/(:\s*)(null)(,?)$/, (_,sep,v,c) =>
+        `${sep}<span class="jnu">${v}</span>${c}`);
+      // bool
+      s = s.replace(/(:\s*)(true|false)(,?)$/, (_,sep,v,c) =>
+        `${sep}<span class="jb">${v}</span>${c}`);
+      return s;
+    })
+    .join('\n');
+}
+
+// ── Email pill loading ─────────────────────────────────────────────────────
+
+const PILL_LABELS = {
+  email_1:   'Email 1 — Structured',
+  email_2:   'Email 2 — Conversational',
+  email_3:   'Email 3 — Hedged',
+  email_bad: 'Email bad — Degenerate',
+};
+
+let emails = {};
+
+async function loadEmails() {
+  const row = document.getElementById('emailPills');
+  try {
+    const r = await fetch(`${API}/emails`);
+    emails = await r.json();
+    row.innerHTML = '';
+    Object.entries(emails).forEach(([key, text]) => {
+      const btn = document.createElement('button');
+      btn.className = 'email-pill';
+      btn.textContent = PILL_LABELS[key] ?? key;
+      btn.onclick = () => selectEmail(key, text, btn);
+      row.appendChild(btn);
+    });
+  } catch {
+    row.innerHTML = '<span style="font-size:12px;color:#dc2626">⚠ Server offline — run: uvicorn server:app --port 8000</span>';
+  }
+}
+
+function selectEmail(key, text, btn) {
+  document.querySelectorAll('.email-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('emailInput').value = text;
+}
+
+// ── Meta chips ─────────────────────────────────────────────────────────────
+
+function metaLoading(col) {
+  document.getElementById(`${col}Meta`).innerHTML =
+    `<div class="chip loading"><span class="spinner" style="border-top-color:#555;border-color:#ddd"></span><span style="color:var(--muted)">Waiting…</span></div>`;
+}
+
+function metaReady(col, latency, tokIn, tokOut, estimated) {
+  const est = estimated
+    ? ' <span class="est">est.</span>'
+    : '';
+  document.getElementById(`${col}Meta`).innerHTML = `
+    <div class="chip"><span>Latency</span><strong>${latency}ms</strong></div>
+    <div class="chip"><span>Tokens in</span><strong>${tokIn}${est}</strong></div>
+    <div class="chip"><span>Tokens out</span><strong>${tokOut}${est}</strong></div>
+  `;
+}
+
+// ── Prompt rendering ───────────────────────────────────────────────────────
+
+function renderRawPrompt(p) {
+  // p = { system, user, tool }
+  const toolStr = JSON.stringify(p.tool, null, 2);
+  return [
+    `<span class="prompt-section-label">── SYSTEM ──────────────────────────────</span>`,
+    esc(p.system),
+    `\n<span class="prompt-section-label">── USER ────────────────────────────────</span>`,
+    esc(p.user),
+    `\n<span class="prompt-section-label">── TOOL SCHEMA ─────────────────────────</span>`,
+    esc(toolStr),
+  ].join('\n');
+}
+
+function renderBamlPrompt(text) {
+  // Highlight everything from "Answer in JSON…" onwards as the auto-injected section
+  const escaped = esc(text);
+  return escaped.replace(
+    /(Answer in JSON using this schema:[\s\S]*)$/,
+    '<span class="schema-inject">$1</span>'
+  );
+}
+
+// ── Prompt toggle ──────────────────────────────────────────────────────────
+
+function togglePrompt(col) {
+  document.getElementById(`${col}Toggle`).classList.toggle('open');
+  document.getElementById(`${col}Prompt`).classList.toggle('open');
+}
+
+// ── SSE consumer ───────────────────────────────────────────────────────────
+
+async function fetchSSE(url, payload, onEvent) {
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status} from ${url}`);
+
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop(); // keep incomplete line
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const raw = line.slice(6).trim();
+      if (raw === '[DONE]') return;
+      try { onEvent(JSON.parse(raw)); } catch { /* skip malformed */ }
+    }
+  }
+}
+
+// ── Main extraction ────────────────────────────────────────────────────────
+
+async function runBoth() {
+  const emailText = document.getElementById('emailInput').value.trim();
+  if (!emailText) return;
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Extracting…';
+
+  // Reset both columns
+  ['raw', 'baml'].forEach(col => {
+    document.getElementById(`${col}Result`).innerHTML = `<span class="empty"><span class="spinner" style="border-top-color:#555;border-color:#333;width:12px;height:12px"></span></span>`;
+    document.getElementById(`${col}Prompt`).innerHTML = '';
+    document.getElementById(`${col}Toggle`).classList.remove('open');
+    document.getElementById(`${col}Prompt`).classList.remove('open');
+    metaLoading(col);
+  });
+
+  const payload = { email_text: emailText };
+
+  const handleRaw = event => {
+    if (event.type === 'prompt') {
+      document.getElementById('rawPrompt').innerHTML = renderRawPrompt(event.content);
+    } else if (event.type === 'result') {
+      document.getElementById('rawResult').innerHTML = colorJson(event.content);
+    } else if (event.type === 'meta') {
+      metaReady('raw', event.latency_ms, event.tokens_in, event.tokens_out, event.estimated);
+    } else if (event.type === 'error') {
+      document.getElementById('rawResult').innerHTML = `<div class="error-block">${esc(event.content)}</div>`;
+      document.getElementById('rawMeta').innerHTML = '';
+    }
+  };
+
+  const handleBaml = event => {
+    if (event.type === 'prompt') {
+      document.getElementById('bamlPrompt').innerHTML = renderBamlPrompt(event.content);
+    } else if (event.type === 'result') {
+      document.getElementById('bamlResult').innerHTML = colorJson(event.content);
+    } else if (event.type === 'meta') {
+      metaReady('baml', event.latency_ms, event.tokens_in, event.tokens_out, event.estimated);
+    } else if (event.type === 'error') {
+      document.getElementById('bamlResult').innerHTML = `<div class="error-block">${esc(event.content)}</div>`;
+      document.getElementById('bamlMeta').innerHTML = '';
+    }
+  };
+
+  await Promise.allSettled([
+    fetchSSE(`${API}/extract/raw`,  payload, handleRaw).catch(e => {
+      document.getElementById('rawResult').innerHTML  = `<div class="error-block">${esc(String(e))}</div>`;
+    }),
+    fetchSSE(`${API}/extract/baml`, payload, handleBaml).catch(e => {
+      document.getElementById('bamlResult').innerHTML = `<div class="error-block">${esc(String(e))}</div>`;
+    }),
+  ]);
+
+  btn.disabled = false;
+  btn.textContent = 'Extract → Compare';
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+loadEmails();
+</script>
+</body>
+</html>
