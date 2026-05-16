@@ -5,7 +5,20 @@
       "Bash(curl -s http://localhost:8000/emails)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('emails endpoint OK, keys:', list\\(d.keys\\(\\)\\)\\)\")",
       "Bash(.venv/Scripts/python bench.py)",
-      "Bash(echo \"exit_code=$?\")"
+      "Bash(echo \"exit_code=$?\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s -o NUL -w \"%{http_code}\" http://localhost:8000/)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "Bash(Start-Process \"chrome.exe\" \"http://localhost:8000\")",
+      "Bash(Start-Sleep -Seconds 3)",
+      "Bash(Write-Host \"done\")",
+      "Bash(.venv/Scripts/pip show *)",
+      "Bash(.venv/Scripts/pip install *)",
+      "Bash(.venv/Scripts/python make_charts.py)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "baml-demo",
+      "runtimeExecutable": "C:\\Users\\westo\\OneDrive\\Desktop\\Berkeley\\BAML_testing\\baml-bsv-eval\\.venv\\Scripts\\uvicorn.exe",
+      "runtimeArgs": ["server:app", "--port", "8000"],
+      "cwd": "C:\\Users\\westo\\OneDrive\\Desktop\\Berkeley\\BAML_testing\\baml-bsv-eval",
+      "port": 8000
+    }
+  ]
+}

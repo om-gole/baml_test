@@ -25,7 +25,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 # dotenv must run before any module that reads ANTHROPIC_API_KEY at import time
 load_dotenv(override=True)
@@ -161,6 +161,11 @@ _SSE_HEADERS = {
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
+@app.get("/")
+async def serve_demo():
+    return FileResponse(Path(__file__).parent / "demo.html")
+
 
 @app.get("/emails")
 async def list_emails():
