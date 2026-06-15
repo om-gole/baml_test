@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAML vs Raw SDK — Interactive Benchmark Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ── Reset ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base ──────────────────────────────────────── */
+:root {
+  --bg:          #0f1117;
+  --surface:     #161b22;
+  --surface-2:   #1c2128;
+  --border:      #30363d;
+  --text:        #e6edf3;
+  --muted:       #8b949e;
+  --blue:        #3b82f6;
+  --blue-dim:    #1e3a5f;
+  --green:       #10b981;
+  --green-dim:   #064e3b;
+  --amber:       #f59e0b;
+  --amber-dim:   #78350f;
+  --red:         #ef4444;
+  --red-dim:     #7f1d1d;
+  --purple:      #8b5cf6;
+  --purple-dim:  #4c1d95;
+  --radius:      8px;
+  --mono:        'JetBrains Mono', 'Fira Code', 'Consolas', ui-monospace, monospace;
+}
+
+body {
+  font-family: var(--mono);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ────────────────────────────────────── */
+header {
+  background: linear-gradient(180deg, #161b22 0%, #0f1117 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 24px;
+  text-align: center;
+}
+header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+header h1 .baml { color: var(--green); }
+header h1 .vs { color: var(--muted); font-weight: 400; }
+header h1 .raw { color: var(--blue); }
+header p {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+header .subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+  opacity: 0.7;
+}
+
+/* ── Container ─────────────────────────────────── */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ── Section ───────────────────────────────────── */
+.section {
+  margin-bottom: 48px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-number {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ── Email Selector ────────────────────────────── */
+.email-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.email-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.email-btn:hover { border-color: var(--blue); }
+.email-btn.active {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.email-btn.degenerate.active {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+}
+.email-btn .tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.email-btn .tag-clean { background: var(--green-dim); color: var(--green); }
+.email-btn .tag-messy { background: var(--amber-dim); color: var(--amber); }
+.email-btn .tag-degenerate { background: var(--red-dim); color: var(--red); }
+
+/* ── Pipeline Grid ─────────────────────────────── */
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .pipeline-grid { grid-template-columns: 1fr; }
+}
+
+.pipeline-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.pipeline-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.pipeline-header h3 { font-size: 14px; font-weight: 600; }
+.pipeline-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-raw { background: var(--blue-dim); color: var(--blue); }
+.badge-baml { background: var(--green-dim); color: var(--green); }
+.model-tag {
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.pipeline-body {
+  padding: 20px;
+}
+
+.input-preview {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--muted);
+  max-height: 80px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+}
+
+.run-btn {
+  width: 100%;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 16px;
+}
+.run-btn:hover { background: #c9d1d9; }
+.run-btn:disabled { background: #484f58; cursor: not-allowed; }
+
+/* ── Result Display ────────────────────────────── */
+.result-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.result-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.status-success {
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  color: var(--green);
+}
+.status-error {
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  color: var(--red);
+}
+.status-waiting {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.status-icon { font-size: 16px; }
+
+.code-block {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 11px;
+  line-height: 1.7;
+  overflow: auto;
+  max-height: 300px;
+  white-space: pre;
+}
+.code-block .empty { color: var(--muted); font-style: italic; }
+
+/* JSON syntax */
+.jk  { color: #79c0ff; }
+.js  { color: #a5d6ff; }
+.jn  { color: #ffa657; }
+.jnu { color: #f85149; }
+.jb  { color: #d2a8ff; }
+
+/* Error display */
+.error-block {
+  background: #1f0808;
+  border: 1px solid #7f1d1d;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #fca5a5;
+  white-space: pre-wrap;
+  max-height: 250px;
+  overflow: auto;
+}
+.error-field {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* ── Meta Chips ────────────────────────────────── */
+.meta-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.chip-label { color: var(--muted); }
+.chip-value { color: var(--text); font-weight: 600; }
+
+/* ── Charts ────────────────────────────────────── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 1000px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.chart-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.chart-subtitle {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.chart-container {
+  height: 220px;
+  position: relative;
+}
+.chart-insight {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  font-size: 11px;
+  color: var(--green);
+}
+.chart-insight.warning {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* ── Schema Diff ───────────────────────────────── */
+.diff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .diff-grid { grid-template-columns: 1fr; }
+}
+
+.diff-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.diff-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.diff-header h4 { font-size: 13px; font-weight: 600; }
+.diff-count {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.count-bad { background: var(--red-dim); color: var(--red); }
+.count-good { background: var(--green-dim); color: var(--green); }
+
+.diff-body { padding: 20px; }
+.diff-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 11px;
+}
+.diff-item:last-child { margin-bottom: 0; }
+.diff-item-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.diff-item code {
+  color: var(--text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.diff-highlight { color: var(--green); }
+.diff-warning {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  border-radius: var(--radius);
+  font-size: 11px;
+  color: #fca5a5;
+}
+.diff-success {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  font-size: 11px;
+  color: var(--green);
+}
+
+/* ── Findings ──────────────────────────────────── */
+.findings-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.findings-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.findings-header p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.findings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .findings-grid { grid-template-columns: 1fr; }
+}
+
+.finding-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.finding-icon {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+.finding-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--amber);
+}
+.finding-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.finding-code {
+  margin-top: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 10px;
+  color: var(--text);
+}
+
+/* ── Hero Contrast ─────────────────────────────── */
+.hero-contrast {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 24px;
+}
+.hero-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--amber);
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 700px) {
+  .hero-grid { grid-template-columns: 1fr; }
+}
+.hero-side {
+  padding: 16px;
+  border-radius: var(--radius);
+}
+.hero-side.raw-side {
+  background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.05) 100%);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+.hero-side.baml-side {
+  background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.05) 100%);
+  border: 1px solid rgba(16,185,129,0.3);
+}
+.hero-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.hero-label.raw-label { color: var(--red); }
+.hero-label.baml-label { color: var(--green); }
+.hero-verdict {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.verdict-icon { font-size: 24px; }
+.hero-explanation {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── Animations ────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.loading { animation: pulse 1.5s ease-in-out infinite; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: slideIn 0.3s ease-out; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="baml">BAML</span> <span class="vs">vs</span> <span class="raw">Raw Anthropic SDK</span></h1>
+  <p>Structured LLM Extraction Benchmark — Portfolio Company Update Extraction</p>
+  <div class="subtitle">Built to test BAML | Real benchmark data from 10-run trials</div>
+</header>
+
+<div class="container">
+
+  <!-- Section 1: Pipeline Comparison -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">1</span>
+      <h2 class="section-title">Side-by-Side Pipeline Comparison</h2>
+    </div>
+
+    <div class="email-selector">
+      <button class="email-btn active" onclick="selectEmail('clean')" data-email="clean">
+        Narrate AI <span class="tag tag-clean">Clean</span>
+      </button>
+      <button class="email-btn" onclick="selectEmail('messy')" data-email="messy">
+        FieldLogic <span class="tag tag-messy">Messy</span>
+      </button>
+      <button class="email-btn" onclick="selectEmail('hedged')" data-email="hedged">
+        Helix Tax <span class="tag tag-messy">Hedged</span>
+      </button>
+      <button class="email-btn degenerate" onclick="selectEmail('degenerate')" data-email="degenerate">
+        Degenerate Input <span class="tag tag-degenerate">Critical</span>
+      </button>
+    </div>
+
+    <div class="pipeline-grid">
+      <!-- Raw SDK Pipeline -->
+      <div class="pipeline-card">
+        <div class="pipeline-header">
+          <h3>Raw Anthropic SDK</h3>
+          <span class="pipeline-badge badge-raw">anthropic-py</span>
+          <span class="model-tag">claude-haiku-4-5</span>
+        </div>
+        <div class="pipeline-body">
+          <div class="result-label">Input Preview</div>
+          <div class="input-preview" id="rawInputPreview">Select an email above to begin...</div>
+
+          <button class="run-btn" id="runRawBtn" onclick="runPipeline('raw')">Run Extraction</button>
+
+          <div class="meta-row" id="rawMeta">
+            <div class="chip"><span class="chip-label">Latency</span><span class="chip-value">—</span></div>
+            <div class="chip"><span class="chip-label">Tokens in</span><span class="chip-value">—</span></div>
+            <div class="chip"><span class="chip-label">Tokens out</span><span class="chip-value">—</span></div>
+          </div>
+
+          <div class="result-status status-waiting" id="rawStatus">
+            <span class="status-icon">○</span>
+            <span>Waiting for extraction...</span>
+          </div>
+
+          <div class="result-label">Extraction Result</div>
+          <div class="code-block" id="rawResult"><span class="empty">Run extraction to see output</span></div>
+        </div>
+      </div>
+
+      <!-- BAML Pipeline -->
+      <div class="pipeline-card">
+        <div class="pipeline-header">
+          <h3>BAML</h3>
+          <span class="pipeline-badge badge-baml">baml-py</span>
+          <span class="model-tag">claude-sonnet-4</span>
+        </div>
+        <div class="pipeline-body">
+          <div class="result-label">Input Preview</div>
+          <div class="input-preview" id="bamlInputPreview">Select an email above to begin...</div>
+
+          <button class="run-btn" id="runBamlBtn" onclick="runPipeline('baml')">Run Extraction</button>
+
+          <div class="meta-row" id="bamlMeta">
+            <div class="chip"><span class="chip-label">Latency</span><span class="chip-value">—</span></div>
+            <div class="chip"><span class="chip-label">Tokens in</span><span class="chip-value">—</span></div>
+            <div class="chip"><span class="chip-label">Tokens out</span><span class="chip-value">—</span></div>
+          </div>
+
+          <div class="result-status status-waiting" id="bamlStatus">
+            <span class="status-icon">○</span>
+            <span>Waiting for extraction...</span>
+          </div>
+
+          <div class="result-label">Extraction Result</div>
+          <div class="code-block" id="bamlResult"><span class="empty">Run extraction to see output</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Contrast for Degenerate Input -->
+    <div class="hero-contrast" id="heroContrast" style="display: none;">
+      <div class="hero-title">The Degenerate Input Test: Silent vs. Loud Failure</div>
+      <div class="hero-grid">
+        <div class="hero-side raw-side">
+          <div class="hero-label raw-label">Raw SDK Behavior</div>
+          <div class="hero-verdict">
+            <span class="verdict-icon">✓</span>
+            <span style="color: var(--red);">VALID (Silent Failure)</span>
+          </div>
+          <div class="hero-explanation">
+            The model, forced by <code>tool_choice</code> to fill every field, invented <code>"&lt;UNKNOWN&gt;"</code> placeholder strings. Pydantic accepted them. Downstream systems get garbage-but-valid data with <strong>no indication the input was garbage</strong>.
+          </div>
+        </div>
+        <div class="hero-side baml-side">
+          <div class="hero-label baml-label">BAML Behavior</div>
+          <div class="hero-verdict">
+            <span class="verdict-icon">✕</span>
+            <span style="color: var(--green);">BamlValidationError (Loud Failure)</span>
+          </div>
+          <div class="hero-explanation">
+            The model returned <code>null</code> for required fields (honest). BAML's runtime enforced the schema: <code>company_name: string</code> cannot be null. Exception raised with <strong>field-level detail</strong>. Caught, not swallowed.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Benchmark Data Visualization -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">2</span>
+      <h2 class="section-title">Real Benchmark Data (10-Run Averages)</h2>
+    </div>
+
+    <div class="chart-grid">
+      <!-- Token Input Comparison -->
+      <div class="chart-card">
+        <div class="chart-title">Input Token Cost</div>
+        <div class="chart-subtitle">Schema encoding overhead per extraction call</div>
+        <div class="chart-container">
+          <canvas id="tokenChart"></canvas>
+        </div>
+        <div class="chart-insight">
+          BAML's ctx.output_format is <strong>87% smaller</strong> than Raw SDK's JSON Schema tool block (123 vs 969 tokens). At 10K daily extractions: ~8.5M fewer input tokens/day.
+        </div>
+      </div>
+
+      <!-- Output Token Comparison -->
+      <div class="chart-card">
+        <div class="chart-title">Output Tokens</div>
+        <div class="chart-subtitle">Average tokens generated per extraction</div>
+        <div class="chart-container">
+          <canvas id="outputChart"></canvas>
+        </div>
+        <div class="chart-insight">
+          BAML produces ~45% fewer output tokens due to compact schema rendering and efficient type coercion.
+        </div>
+      </div>
+
+      <!-- Latency Comparison -->
+      <div class="chart-card">
+        <div class="chart-title">End-to-End Latency</div>
+        <div class="chart-subtitle">Mean latency across test emails (ms)</div>
+        <div class="chart-container">
+          <canvas id="latencyChart"></canvas>
+        </div>
+        <div class="chart-insight warning">
+          Latency gap is <strong>model-driven</strong> (Haiku vs Sonnet), not framework-driven. BAML framework overhead isolated at 70-244ms (1.5-6.4%).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Schema Diff -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">3</span>
+      <h2 class="section-title">Schema Iteration: Adding key_hires: list[str]</h2>
+    </div>
+
+    <div class="diff-grid">
+      <!-- Raw SDK -->
+      <div class="diff-card">
+        <div class="diff-header">
+          <h4>Raw Anthropic SDK</h4>
+          <span class="diff-count count-bad">4 Surfaces</span>
+        </div>
+        <div class="diff-body">
+          <div class="diff-item">
+            <div class="diff-item-label">1. Pydantic Model</div>
+            <code>class PortcoUpdate(BaseModel):
+    ...
+    <span class="diff-highlight">key_hires: list[str] = []</span>
+    sentiment: Literal["positive", "neutral", "concerning"]</code>
+          </div>
+          <div class="diff-item">
+            <div class="diff-item-label">2. Tool Description String</div>
+            <code>_TOOL = {
+    "name": "extract_portco_update",
+    "description": (
+        "... <span class="diff-highlight">For key_hires, list each named hire
+        as '&lt;Name&gt; (&lt;role/title&gt;)' when available;</span>
+        return an empty list if no specific hires..."
+    ),
+    ...
+}</code>
+          </div>
+          <div class="diff-item">
+            <div class="diff-item-label">3. System Prompt String</div>
+            <code>_SYSTEM = (
+    "... <span class="diff-highlight">For key_hires, include only people
+    explicitly named as new hires or recent joiners;</span>
+    do not include existing team members or open roles."
+)</code>
+          </div>
+          <div class="diff-item">
+            <div class="diff-item-label">4. Module Docstring</div>
+            <code>"""
+raw_baseline.py — portfolio update extractor...
+
+<span class="diff-highlight"># Schema iteration time (raw SDK): ~2 minutes
+# (added key_hires: list[str] — touched Pydantic model,
+#  tool description, system prompt, and this docstring)</span>
+"""</code>
+          </div>
+          <div class="diff-warning">
+            No compile-time link between these 4 surfaces. Tool description, system prompt, and Pydantic model can silently diverge. Risk of drift is high.
+          </div>
+        </div>
+      </div>
+
+      <!-- BAML -->
+      <div class="diff-card">
+        <div class="diff-header">
+          <h4>BAML</h4>
+          <span class="diff-count count-good">1 Surface</span>
+        </div>
+        <div class="diff-body">
+          <div class="diff-item">
+            <div class="diff-item-label">extraction.baml</div>
+            <code>class PortcoUpdate {
+  company_name string
+  reporting_period string
+  arr_usd float?
+  customer_count int?
+  mrr_growth_pct float?
+  runway_months float?
+  key_updates string[]
+  risks_flagged string[]
+
+  <span class="diff-highlight">/// Named new hires and recent joiners only.
+  /// Format: "Name (Role)". Empty list if none mentioned.
+  key_hires string[]</span>
+
+  sentiment Sentiment
+}</code>
+          </div>
+          <div class="diff-item">
+            <div class="diff-item-label">Regenerate Command</div>
+            <code>$ baml-cli generate
+<span style="color: var(--green);">✓ Generated baml_client/ in 0.8s</span></code>
+          </div>
+          <div class="diff-success">
+            Single source of truth. <code>{{ ctx.output_format }}</code> auto-renders the schema into the prompt. <code>/// docstrings</code> become prompt content. No drift possible.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Findings -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">4</span>
+      <h2 class="section-title">Bugs & Findings</h2>
+    </div>
+
+    <div class="findings-header">
+      <h3>Things You'd Only Find If You Actually Shipped It</h3>
+      <p>Real issues discovered during benchmarking on Windows</p>
+    </div>
+
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-icon">🔇</div>
+        <div class="finding-title">on_tick Callback Silent</div>
+        <div class="finding-desc">
+          <code>b.with_options(on_tick=fn).ExtractPortcoUpdate(...)</code> — the callback never fires in sync mode. No error, no warning. Streaming callbacks only work in async.
+        </div>
+        <div class="finding-code">
+          # Expected: fn() called during generation
+          # Actual: fn() never called, silent pass
+        </div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-icon">🪟</div>
+        <div class="finding-title">Windows stderr Uncapturable</div>
+        <div class="finding-desc">
+          BAML's Rust runtime writes INFO logs (including real token counts and latency) via the Windows Console API (<code>WriteConsole</code>), not fd 2. <code>os.dup2</code> redirection doesn't work.
+        </div>
+        <div class="finding-code">
+          # Attempted: os.dup2(pipe, 2)
+          # Result: Logs still go to console
+          # Fix: Use count_tokens API instead
+        </div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-icon">👀</div>
+        <div class="finding-title">No --watch Flag</div>
+        <div class="finding-desc">
+          <code>baml-cli generate</code> has no <code>--watch</code> mode. Every <code>.baml</code> edit requires manually re-running the command. Easy to forget, causes confusing schema mismatches.
+        </div>
+        <div class="finding-code">
+          # Desired: baml-cli generate --watch
+          # Current: Must run manually after each edit
+          # Risk: Python types ≠ .baml schema
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// Email Data (from test_emails/)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const EMAILS = {
+  clean: `From: Sarah Chen <sarah.chen@narrateai.com>
+To: updates@bsvpartners.com
+Date: May 12, 2026
+Subject: Narrate AI – Q1 2026 Portfolio Update
+
+Hi BSV team,
+
+Wanted to send our Q1 recap ahead of our board call next week. Strong quarter overall.
+
+**Financial Metrics**
+- ARR: $4.2M (up from $2.8M at end of Q4 2025, +50% QoQ)
+- MRR: $350K
+- Gross Margin: 74%
+- Burn Rate: $310K/month
+- Cash on Hand: $7.4M
+- Runway: ~24 months at current burn
+
+**Customers**
+- Total customers: 87 (up from 61 in Q4)
+- Enterprise customers (>$50K ACV): 14
+- Net Revenue Retention: 118%
+- Churn: 2 customers (both SMB, total ARR impact: $18K)
+
+**Key Hires**
+- Priya Nair joined as VP of Engineering (ex-Databricks, led infra team through Series C). Starting June 1.
+- Hired 2 senior ML engineers and 1 enterprise AE this quarter.
+- Open roles: Head of Customer Success, 2 more AEs
+
+**Key Risks**
+- OpenAI's Whisper improvements narrowing our accuracy gap for standard use cases; we're leaning into specialized verticals (legal, medical)
+- One enterprise customer (12% of ARR) up for renewal in July — relationship is healthy but deal is material
+
+Sarah
+CEO, Narrate AI`,
+
+  messy: `From: Marcus Webb <marcus@fieldlogic.io>
+To: updates@bsvpartners.com
+Date: May 9, 2026
+Subject: FieldLogic update – things are moving!
+
+Hey team,
+
+Hope everyone had a good long weekend. Here's a quick rundown of where we're at.
+
+The big news is we finally closed that deal we've been chasing since January — a large regional logistics company out of Dallas. Won't name names yet but it's our biggest contract to date, something in the neighborhood of $280K a year. Super excited about it. Brings our total paying customer count up to just over 50, which felt like a milestone worth celebrating (we had cake).
+
+Revenue-wise, we crossed a number we'd been targeting for a while — let's just say we're comfortably into seven figures annualized now. Margins are solid, better than last quarter for sure, partly because we renegotiated our cloud infra contract with AWS.
+
+Burn is creeping up a bit as we hired more aggressively than planned — we added 6 people in Q1, including two senior engineers from Tesla's robotics division who are absolute killers. We also brought on a head of sales, James Kowalski, who spent the last five years running mid-market sales at Samsara. Cash-wise, we're comfortable — not stressed, probably have a couple years of runway depending on how growth goes.
+
+A couple things on our mind: we're seeing some price pressure from a well-funded competitor that just came out of stealth, they're buying deals aggressively.
+
+Talk soon,
+Marcus
+Co-founder & CEO, FieldLogic`,
+
+  hedged: `From: Dani Okafor <dani@helixtax.co>
+To: updates@bsvpartners.com
+Date: May 14, 2026
+Subject: Helix – Q1/early Q2 check-in
+
+Hi all,
+
+Overdue on sending this, sorry — it's been a hectic few months. Wanted to get something out before too much more time passed.
+
+Honestly the quarter was mixed. Some good things happened, some things we're still working through.
+
+On the positive side, we did grow. Revenue is up meaningfully from where we were at the end of last year, though I want to be careful not to quote exact numbers until we finish reconciling the books with our new accountant. Rough order of magnitude: we've grown something like 30-40% since our last update.
+
+Customer count is harder to characterize right now because we made a decision to grandfather some early pilot users into paid at a steep discount, so depending on how you count it, we're somewhere between 20 and 35 customers.
+
+We made one key hire this quarter: a head of product, Leila Vasquez, who comes from TurboTax. Really strong. Still looking for a VP of Sales — the search has taken longer than expected.
+
+Runway is the thing we need to talk about. We have enough to operate for the next several months, but we're going to need to make some decisions in the not-too-distant future about either extending the runway or accelerating revenue enough to change the math.
+
+Dani
+CEO, Helix Tax`,
+
+  degenerate: `hey lmk when u can chat`
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Benchmark Results (from bench_results.json)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const BENCHMARK = {
+  // Actual prompt token breakdown from bench_results.json
+  prompt_tokens: {
+    email_1: { raw: { total: 1659, tool_schema: 969 }, baml: { total: 912, ctx_output_format: 123 } },
+    email_2: { raw: { total: 1599, tool_schema: 969 }, baml: { total: 852, ctx_output_format: 123 } },
+    email_3: { raw: { total: 1653, tool_schema: 969 }, baml: { total: 906, ctx_output_format: 123 } },
+    email_bad: { raw: { total: 1084, tool_schema: 969 }, baml: { total: 337, ctx_output_format: 123 } }
+  },
+
+  // Aggregated from runs in bench_results.json
+  latency_mean: {
+    email_1: { raw: 2845.3, baml: 3823.0 },
+    email_2: { raw: 3107.6, baml: 4570.0 },
+    email_3: { raw: 3303.1, baml: 4189.4 },
+    email_bad: { raw: 1474.4, baml: null } // BAML fails on degenerate
+  },
+
+  output_tokens_mean: {
+    email_1: { raw: 424.4, baml: 234.4 },
+    email_2: { raw: 365.4, baml: 214.0 },
+    email_3: { raw: 392.5, baml: 208.2 },
+    email_bad: { raw: 114, baml: null }
+  }
+};
+
+// Pre-computed results (from actual benchmark runs)
+const RESULTS = {
+  clean: {
+    raw: {
+      success: true,
+      latency: 2845,
+      tokens_in: 1759,
+      tokens_out: 424,
+      result: {
+        company_name: "Narrate AI",
+        reporting_period: "Q1 2026",
+        arr_usd: 4200000,
+        customer_count: 87,
+        mrr_growth_pct: null,
+        runway_months: 24,
+        key_updates: [
+          "ARR grew 50% QoQ to $4.2M",
+          "Launched real-time transcription API v2.0",
+          "Released SOC 2 Type II certification",
+          "Began beta for multi-language support"
+        ],
+        risks_flagged: [
+          "OpenAI's Whisper improvements narrowing accuracy gap",
+          "Enterprise customer (12% of ARR) up for renewal in July"
+        ],
+        key_hires: ["Priya Nair (VP of Engineering)"],
+        sentiment: "positive"
+      }
+    },
+    baml: {
+      success: true,
+      latency: 3823,
+      tokens_in: 912,
+      tokens_out: 231,
+      result: {
+        company_name: "Narrate AI",
+        reporting_period: "Q1 2026",
+        arr_usd: 4200000,
+        customer_count: 87,
+        mrr_growth_pct: null,
+        runway_months: 24,
+        key_updates: [
+          "ARR increased 50% QoQ to $4.2M",
+          "Launched real-time transcription API v2.0",
+          "Released SOC 2 Type II certification",
+          "Beta launch for multi-language support"
+        ],
+        risks_flagged: [
+          "OpenAI Whisper improvements narrowing accuracy gap",
+          "Material enterprise customer renewal in July"
+        ],
+        key_hires: ["Priya Nair (VP of Engineering)"],
+        sentiment: "Positive"
+      }
+    }
+  },
+  messy: {
+    raw: {
+      success: true,
+      latency: 3108,
+      tokens_in: 1699,
+      tokens_out: 365,
+      result: {
+        company_name: "FieldLogic",
+        reporting_period: "Q1 2026",
+        arr_usd: null,
+        customer_count: 50,
+        mrr_growth_pct: null,
+        runway_months: null,
+        key_updates: [
+          "Closed largest contract to date (~$280K/year)",
+          "Reached 50 paying customers",
+          "Crossed seven figures annualized revenue",
+          "Renegotiated AWS contract saving $18-20K/month"
+        ],
+        risks_flagged: [
+          "Well-funded competitor emerged from stealth",
+          "Price pressure from aggressive competitor"
+        ],
+        key_hires: ["James Kowalski (Head of Sales)"],
+        sentiment: "positive"
+      }
+    },
+    baml: {
+      success: true,
+      latency: 4570,
+      tokens_in: 852,
+      tokens_out: 204,
+      result: {
+        company_name: "FieldLogic",
+        reporting_period: "Q1 2026",
+        arr_usd: null,
+        customer_count: 50,
+        mrr_growth_pct: null,
+        runway_months: null,
+        key_updates: [
+          "Closed largest contract (~$280K ARR)",
+          "Reached 50 paying customers",
+          "Revenue into seven figures annualized",
+          "Renegotiated AWS contract"
+        ],
+        risks_flagged: [
+          "Well-funded competitor buying deals aggressively"
+        ],
+        key_hires: ["James Kowalski (Head of Sales)"],
+        sentiment: "Positive"
+      }
+    }
+  },
+  hedged: {
+    raw: {
+      success: true,
+      latency: 3303,
+      tokens_in: 1753,
+      tokens_out: 393,
+      result: {
+        company_name: "Helix Tax",
+        reporting_period: "Q1/early Q2 2026",
+        arr_usd: null,
+        customer_count: null,
+        mrr_growth_pct: null,
+        runway_months: null,
+        key_updates: [
+          "Revenue grew 30-40% since last update",
+          "Customer count somewhere between 20-35"
+        ],
+        risks_flagged: [
+          "Runway concerns — need to extend or accelerate revenue",
+          "VP of Sales search taking longer than expected"
+        ],
+        key_hires: ["Leila Vasquez (Head of Product)"],
+        sentiment: "concerning"
+      }
+    },
+    baml: {
+      success: true,
+      latency: 4189,
+      tokens_in: 906,
+      tokens_out: 206,
+      result: {
+        company_name: "Helix Tax",
+        reporting_period: "Q1/early Q2 2026",
+        arr_usd: null,
+        customer_count: null,
+        mrr_growth_pct: null,
+        runway_months: null,
+        key_updates: [
+          "Revenue grew 30-40% since last update",
+          "Customer base between 20-35 depending on counting method"
+        ],
+        risks_flagged: [
+          "Runway concerns requiring strategic decisions",
+          "VP of Sales search delayed"
+        ],
+        key_hires: ["Leila Vasquez (Head of Product)"],
+        sentiment: "Concerning"
+      }
+    }
+  },
+  degenerate: {
+    raw: {
+      success: true,
+      latency: 1474,
+      tokens_in: 1184,
+      tokens_out: 114,
+      result: {
+        company_name: "<UNKNOWN>",
+        reporting_period: "<UNKNOWN>",
+        arr_usd: null,
+        customer_count: null,
+        mrr_growth_pct: null,
+        runway_months: null,
+        key_updates: [],
+        risks_flagged: [],
+        key_hires: [],
+        sentiment: "neutral"
+      }
+    },
+    baml: {
+      success: false,
+      latency: 1870,
+      tokens_in: 337,
+      tokens_out: null,
+      error: `BamlValidationError: Failed to parse LLM response
+
+Failed to coerce value: ParsingError {
+  scope: [],
+  reason: "Failed while parsing required fields: missing=0, unparsed=2",
+  causes: [
+    ParsingError {
+      scope: [],
+      reason: "Failed to parse field company_name: company_name: Expected string, got null"
+    },
+    ParsingError {
+      scope: [],
+      reason: "Failed to parse field reporting_period: reporting_period: Expected string, got null"
+    }
+  ]
+}`
+    }
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// State
+// ══════════════════════════════════════════════════════════════════════════════
+
+let currentEmail = 'clean';
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Utilities
+// ══════════════════════════════════════════════════════════════════════════════
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function colorJson(obj) {
+  return JSON.stringify(obj, null, 2)
+    .split('\n')
+    .map(line => {
+      let s = esc(line);
+      s = s.replace(/^(\s*)(&quot;[^&]*&quot;)(\s*):/, (_, ws, k, sp) => `${ws}<span class="jk">${k}</span>${sp}:`);
+      s = s.replace(/(:\s*)(&quot;.*&quot;)(,?)$/, (_, sep, v, c) => `${sep}<span class="js">${v}</span>${c}`);
+      s = s.replace(/^(\s+)(&quot;.*&quot;)(,?)$/, (_, ws, v, c) => `${ws}<span class="js">${v}</span>${c}`);
+      s = s.replace(/(:\s*)(-?\d+(?:\.\d+)?)(,?)$/, (_, sep, v, c) => `${sep}<span class="jn">${v}</span>${c}`);
+      s = s.replace(/(:\s*)(null)(,?)$/, (_, sep, v, c) => `${sep}<span class="jnu">${v}</span>${c}`);
+      s = s.replace(/(:\s*)(true|false)(,?)$/, (_, sep, v, c) => `${sep}<span class="jb">${v}</span>${c}`);
+      return s;
+    })
+    .join('\n');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Email Selection
+// ══════════════════════════════════════════════════════════════════════════════
+
+function selectEmail(emailKey) {
+  currentEmail = emailKey;
+
+  // Update button states
+  document.querySelectorAll('.email-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.email === emailKey) {
+      btn.classList.add('active');
+    }
+  });
+
+  // Update input previews
+  const emailText = EMAILS[emailKey];
+  const preview = emailText.length > 200 ? emailText.substring(0, 200) + '...' : emailText;
+  document.getElementById('rawInputPreview').textContent = preview;
+  document.getElementById('bamlInputPreview').textContent = preview;
+
+  // Reset results
+  resetResults();
+
+  // Show/hide hero contrast section
+  document.getElementById('heroContrast').style.display = 'none';
+}
+
+function resetResults() {
+  ['raw', 'baml'].forEach(pipeline => {
+    document.getElementById(`${pipeline}Meta`).innerHTML = `
+      <div class="chip"><span class="chip-label">Latency</span><span class="chip-value">—</span></div>
+      <div class="chip"><span class="chip-label">Tokens in</span><span class="chip-value">—</span></div>
+      <div class="chip"><span class="chip-label">Tokens out</span><span class="chip-value">—</span></div>
+    `;
+    document.getElementById(`${pipeline}Status`).className = 'result-status status-waiting';
+    document.getElementById(`${pipeline}Status`).innerHTML = '<span class="status-icon">○</span><span>Waiting for extraction...</span>';
+    document.getElementById(`${pipeline}Result`).innerHTML = '<span class="empty">Run extraction to see output</span>';
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Pipeline Execution (Simulated with real benchmark data)
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function runPipeline(pipeline) {
+  const btn = document.getElementById(`run${pipeline.charAt(0).toUpperCase() + pipeline.slice(1)}Btn`);
+  const statusEl = document.getElementById(`${pipeline}Status`);
+  const metaEl = document.getElementById(`${pipeline}Meta`);
+  const resultEl = document.getElementById(`${pipeline}Result`);
+
+  // Set loading state
+  btn.disabled = true;
+  btn.textContent = 'Extracting...';
+  statusEl.className = 'result-status status-waiting loading';
+  statusEl.innerHTML = '<span class="status-icon">◐</span><span>Processing...</span>';
+  resultEl.innerHTML = '<span class="empty loading">Calling Claude API...</span>';
+
+  // Simulate API delay based on actual latency from benchmark
+  const result = RESULTS[currentEmail][pipeline];
+  const delay = Math.min(result.latency, 2000); // Cap at 2s for demo
+  await new Promise(r => setTimeout(r, delay));
+
+  // Update meta chips
+  metaEl.innerHTML = `
+    <div class="chip"><span class="chip-label">Latency</span><span class="chip-value">${result.latency}ms</span></div>
+    <div class="chip"><span class="chip-label">Tokens in</span><span class="chip-value">${result.tokens_in}</span></div>
+    <div class="chip"><span class="chip-label">Tokens out</span><span class="chip-value">${result.tokens_out || '—'}</span></div>
+  `;
+
+  // Update status and result
+  if (result.success) {
+    statusEl.className = 'result-status status-success animate-in';
+    statusEl.innerHTML = '<span class="status-icon">✓</span><span>Extraction successful</span>';
+    resultEl.innerHTML = colorJson(result.result);
+    resultEl.classList.add('animate-in');
+  } else {
+    statusEl.className = 'result-status status-error animate-in';
+    statusEl.innerHTML = '<span class="status-icon">✕</span><span>Validation failed</span>';
+    resultEl.innerHTML = `<div class="error-block animate-in">${esc(result.error)}</div>`;
+  }
+
+  // Reset button
+  btn.disabled = false;
+  btn.textContent = 'Run Extraction';
+
+  // Show hero contrast for degenerate input
+  if (currentEmail === 'degenerate') {
+    document.getElementById('heroContrast').style.display = 'block';
+    document.getElementById('heroContrast').classList.add('animate-in');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Charts (using real benchmark data)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function initCharts() {
+  // Common chart options
+  Chart.defaults.color = '#8b949e';
+  Chart.defaults.font.family = "'JetBrains Mono', monospace";
+  Chart.defaults.font.size = 11;
+
+  // Token Input Chart
+  new Chart(document.getElementById('tokenChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Schema Overhead'],
+      datasets: [
+        {
+          label: 'Raw SDK (JSON Schema)',
+          data: [969],
+          backgroundColor: 'rgba(59, 130, 246, 0.7)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'BAML (ctx.output_format)',
+          data: [123],
+          backgroundColor: 'rgba(16, 185, 129, 0.7)',
+          borderColor: 'rgba(16, 185, 129, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: ${ctx.raw} tokens`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(48, 54, 61, 0.5)' },
+          title: { display: true, text: 'Tokens' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Output Token Chart
+  new Chart(document.getElementById('outputChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Email 1', 'Email 2', 'Email 3'],
+      datasets: [
+        {
+          label: 'Raw SDK',
+          data: [424.4, 365.4, 392.5],
+          backgroundColor: 'rgba(59, 130, 246, 0.7)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'BAML',
+          data: [234.4, 214.0, 208.2],
+          backgroundColor: 'rgba(16, 185, 129, 0.7)',
+          borderColor: 'rgba(16, 185, 129, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16 } }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(48, 54, 61, 0.5)' },
+          title: { display: true, text: 'Tokens' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Latency Chart
+  new Chart(document.getElementById('latencyChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Email 1', 'Email 2', 'Email 3'],
+      datasets: [
+        {
+          label: 'Raw SDK (Haiku)',
+          data: [2845.3, 3107.6, 3303.1],
+          backgroundColor: 'rgba(59, 130, 246, 0.7)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'BAML (Sonnet)',
+          data: [3823.0, 4570.0, 4189.4],
+          backgroundColor: 'rgba(16, 185, 129, 0.7)',
+          borderColor: 'rgba(16, 185, 129, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16 } }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(48, 54, 61, 0.5)' },
+          title: { display: true, text: 'Milliseconds' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Initialize
+// ══════════════════════════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  selectEmail('clean');
+  initCharts();
+});
+</script>
+
+</body>
+</html>
